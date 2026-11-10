@@ -78,11 +78,8 @@
             margin-bottom: 18px;
         }
 
-        .email {
-            display: inline-block;
-            margin-top: 12px;
+        .email, .link {
             color: var(--accent);
-            font-size: 1rem;
             text-decoration: none;
             border-bottom: 1px solid var(--accent);
             padding-bottom: 2px;
@@ -90,9 +87,15 @@
             transition: 0.2s;
         }
 
-        .email:hover {
+        .email:hover, .link:hover {
             text-shadow: 0 0 12px var(--accent-glow);
             filter: drop-shadow(0 0 8px var(--accent-glow));
+        }
+
+        .email {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 1rem;
         }
 
         .footer {
@@ -110,6 +113,7 @@
     <main class="card">
         <div class="badge">Offline</div>
         <h1>This website was <span>shut down</span> by Nexus Official.</h1>
+        <p>If you want GhostLink, go to <a class="link" href="https://javier.textnexus.me">Javier.textnexus.me</a> or <a class="link" href="https://textnexus.me">Textnexus.me</a>.</p>
         <p>If you believe we made a mistake, email us and we will take a look.</p>
         <a class="email" href="mailto:web.solutions@textnexus.me">web.solutions@textnexus.me</a>
         <div class="footer">Nexus Official</div>
