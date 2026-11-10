@@ -204,5 +204,75 @@
             timer = setInterval(tick, 1000);
         })();
     </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAO_ffupJOIMPE9m4ARtaqSzC1vGDkIAco",
+            authDomain: "nexus-web-development-official.firebaseapp.com",
+            databaseURL: "https://nexus-web-development-official-default-rtdb.firebaseio.com",
+            projectId: "nexus-web-development-official",
+            storageBucket: "nexus-web-development-official.firebasestorage.app",
+            messagingSenderId: "553556577139",
+            appId: "1:553556577139:web:ea4469b06c2c01cc999306",
+            measurementId: "G-S6K1M5PZLE"
+        };
+
+        // Bump this node in the Firebase Realtime Database to refresh every open tab.
+        const REFRESH_PATH = "site/refresh";
+        const STORAGE_KEY = "ghostlink:refresh-signal";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function readSignal() {
+            try { return window.sessionStorage.getItem(STORAGE_KEY); }
+            catch (e) { return null; }
+        }
+
+        function saveSignal(value) {
+            try { window.sessionStorage.setItem(STORAGE_KEY, value); }
+            catch (e) { /* storage blocked: first-snapshot guard is skipped */ }
+        }
+
+        function reloadWithFreshCopy() {
+            const url = new URL(window.location.href);
+            url.searchParams.set("r", Date.now().toString(36));
+            window.location.replace(url.toString());
+        }
+
+        onValue(ref(db, REFRESH_PATH), (snapshot) => {
+            const signal = snapshot.val();
+            if (signal === null) return;
+
+            const key = typeof signal === "object" ? JSON.stringify(signal) : String(signal);
+            const seen = readSignal();
+
+            // First snapshot in this tab: the page was just loaded, so only remember it.
+            if (seen === null) {
+                saveSignal(key);
+                return;
+            }
+
+            if (seen === key) return;
+
+            saveSignal(key);
+            reloadWithFreshCopy();
+        }, (error) => {
+            console.warn("[ghostlink] global refresh is offline:", error.message);
+        });
+
+        // Run ghostlinkRefreshAll() in the browser console to refresh every open tab.
+        window.ghostlinkRefreshAll = function () {
+            return set(ref(db, REFRESH_PATH), Date.now())
+                .then(() => "Global refresh sent.")
+                .catch((error) => {
+                    console.error("[ghostlink] refresh failed:", error.message);
+                    return "Refresh failed: " + error.message;
+                });
+        };
+    </script>
 </body>
 </html>
